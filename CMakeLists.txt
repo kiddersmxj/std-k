@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.9)
 
 project(std-k VERSION 0.0.1 DESCRIPTION "kidders std library")
 
-add_library(std-k SHARED src/std-k.cpp)
+add_library(std-k SHARED
+    src/std-k.cpp
+    inc/std-k.hpp
+)
 include(GNUInstallDirs)
 
 set_target_properties(std-k PROPERTIES
@@ -10,7 +13,7 @@ set_target_properties(std-k PROPERTIES
     SOVERSION 0
     PUBLIC_HEADER inc/std-k.hpp)
 
-target_include_directories(std-k PRIVATE .)
+target_include_directories(std-k PRIVATE src, inc)
 
 # configure_file(${PROJECT_SOURCE_DIR}/std-k.pc.in ${PROJECT_SOURCE_DIR}/std-k.pc @ONLY)
 

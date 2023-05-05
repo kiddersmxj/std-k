@@ -7,6 +7,7 @@ add_library(std-k SHARED
     inc/std-k.hpp
 )
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 set_target_properties(std-k PROPERTIES
     VERSION ${PROJECT_VERSION}
@@ -17,6 +18,7 @@ target_include_directories(std-k PRIVATE src, inc)
 
 # configure_file(${PROJECT_SOURCE_DIR}/std-k.pc.in ${PROJECT_SOURCE_DIR}/std-k.pc @ONLY)
 
+install(DIRECTORY include/std-k DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(TARGETS std-k
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

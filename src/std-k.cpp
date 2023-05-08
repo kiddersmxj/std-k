@@ -1,6 +1,4 @@
 #include "../inc/std-k.hpp"
-#include <string>
-
 
 // NULL function to attach breakpoint to in gdb
 void k::BreakPoint(void) {
@@ -103,6 +101,23 @@ int k::VGetIndex(std::vector<std::string> v, std::string K) {
 
 long k::Map(long x, long in_min, long in_max, long out_min, long out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+float k::Average(std::vector<int> &v){
+    if(v.empty()) {
+        return 0;
+    }
+    return std::accumulate(v.begin(), v.end(), 0.0) / v.size();
+}
+
+int k::GetMax(std::vector<int> V) {
+    const int Max = *max_element(std::begin(V), std::end(V));
+    return Max;
+}
+
+int k::GetMin(std::vector<int> V) {
+    const int Min = *min_element(std::begin(V), std::end(V));
+    return Min;
 }
 
 // TODO added colour printing functions

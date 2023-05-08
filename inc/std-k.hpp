@@ -9,6 +9,7 @@
 #include <cstring>
 #include <algorithm>
 #include <sstream>
+#include <numeric>
 
 const std::string HOME = getenv("HOME");
 
@@ -24,6 +25,9 @@ namespace k {
     void SplitString(std::string &str, char delim, std::vector<std::string> &out);
     int VGetIndex(std::vector<std::string> v, std::string K);
     long Map(long x, long in_min, long in_max, long out_min, long out_max);
+    float Average(std::vector<int> &v);
+    int GetMax(std::vector<int> V);
+    int GetMin(std::vector<int> V);
 }
 
 #endif

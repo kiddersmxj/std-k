@@ -101,7 +101,7 @@ int k::VGetIndex(std::vector<std::string> v, std::string K) {
     }
 }
 
-long Map(long x, long in_min, long in_max, long out_min, long out_max) {
+int Map(int x, int in_min, int in_max, int out_min, int out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 

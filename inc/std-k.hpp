@@ -23,6 +23,7 @@ namespace k {
     std::string StripTrailingNL(std::string Input);
     void SplitString(std::string &str, char delim, std::vector<std::string> &out);
     int VGetIndex(std::vector<std::string> v, std::string K);
+    long Map(long x, long in_min, long in_max, long out_min, long out_max);
 }
 
 #endif

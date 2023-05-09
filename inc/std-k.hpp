@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <sstream>
 #include <numeric>
+#include <math.h>
 
 const std::string HOME = getenv("HOME");
 
@@ -28,6 +29,7 @@ namespace k {
     float Average(std::vector<int> &v);
     int GetMax(std::vector<int> V);
     int GetMin(std::vector<int> V);
+    std::string Space(std::vector<std::string> Values, int Width);
 }
 
 #endif

@@ -120,5 +120,29 @@ int k::GetMin(std::vector<int> V) {
     return Min;
 }
 
+std::string k::Space(std::vector<std::string> Values, int Width) {
+    std::string Str;
+    int Space = floor(Width/Values.size());
+    for(std::string s: Values) {
+        if(s.length() > Space)
+            return "too small width";
+        int Rem = Space - s.length();
+        if(Rem % 2 == 0) {
+            for(int i=0; i<Rem/2; i++)
+                Str = Str + " ";
+            Str = Str + s;
+            for(int i=0; i<Rem/2; i++)
+                Str = Str + " ";
+        } else {
+            for(int i=0; i<floor(Rem/2); i++)
+                Str = Str + " ";
+            Str = Str + s;
+            for(int i=0; i<floor(Rem/2)+1; i++)
+                Str = Str + " ";
+        }
+    }
+    return Str;
+}
+
 // TODO added colour printing functions
 

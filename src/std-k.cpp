@@ -149,5 +149,12 @@ bool k::IsInteger(std::string str) {
     return rtn;
 }
 
+bool k::IsNegative(int Num) {
+    bool Flag;
+    if(Num == 0)
+            return 0; else (Num > 0) ? Flag = 0: Flag = 1;
+    return Flag;
+}
+
 // TODO added colour printing functions
 

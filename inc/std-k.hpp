@@ -31,6 +31,7 @@ namespace k {
     int GetMin(std::vector<int> V);
     std::string Space(std::vector<std::string> Values, int Width);
     bool IsInteger(std::string str);
+    bool IsNegative(int Num);
 }
 
 #endif

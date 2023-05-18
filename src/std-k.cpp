@@ -156,5 +156,11 @@ bool k::IsNegative(int Num) {
     return Flag;
 }
 
+void k::ReplaceFirst(std::string &s ,std::string const &ToReplace, std::string const &ReplaceWith) {
+    std::size_t pos = s.find(ToReplace);
+    if (pos == std::string::npos) return;
+        s.replace(pos, ToReplace.length(), ReplaceWith);
+}
+
 // TODO added colour printing functions
 

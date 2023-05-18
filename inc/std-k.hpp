@@ -32,6 +32,7 @@ namespace k {
     std::string Space(std::vector<std::string> Values, int Width);
     bool IsInteger(std::string str);
     bool IsNegative(int Num);
+    void ReplaceFirst(std::string &s ,std::string const &ToReplace, std::string const &ReplaceWith);
 }
 
 #endif

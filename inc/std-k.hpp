@@ -30,6 +30,7 @@ namespace k {
     int GetMax(std::vector<int> V);
     int GetMin(std::vector<int> V);
     std::string Space(std::vector<std::string> Values, int Width);
+    bool IsInteger(std::string str);
 }
 
 #endif

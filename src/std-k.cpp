@@ -144,5 +144,10 @@ std::string k::Space(std::vector<std::string> Values, int Width) {
     return Str;
 }
 
+bool k::IsInteger(std::string str) {
+    bool rtn = !str.empty() && str.find_first_not_of("0123456789-.") == std::string::npos;
+    return rtn;
+}
+
 // TODO added colour printing functions
 

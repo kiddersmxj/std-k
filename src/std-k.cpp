@@ -104,7 +104,7 @@ long k::Map(long x, long in_min, long in_max, long out_min, long out_max) {
 }
 
 float k::Average(std::vector<int> &v){
-    if(v.empty()) {
+    if(v.empty() || *v.begin() == 0) {
         return 0;
     }
     return std::accumulate(v.begin(), v.end(), 0.0) / v.size();

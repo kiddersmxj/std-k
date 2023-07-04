@@ -29,6 +29,7 @@ namespace k {
     void ReplaceFirst(std::string &s ,std::string const &ToReplace, std::string const &ReplaceWith);
     bool Sleep(const long long Milliseconds);
     bool MkDir(std::string Path);
+    void WriteFileLines(std::string Lines, std::string File);
 }
 
 #endif

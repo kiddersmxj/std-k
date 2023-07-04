@@ -189,5 +189,16 @@ bool k::MkDir(std::string Path) {
     return 0;
 }
 
+void k::WriteFileLines(std::string Lines, std::string File) {
+    std::fstream FileToWrite(File, std::ios::out);
+	if (!FileToWrite) {
+        std::cout << "File not created!" << std::endl;
+	}
+	else {
+        FileToWrite << Lines << std::endl;
+		FileToWrite.close();
+	}
+}
+
 // TODO added colour printing functions
 

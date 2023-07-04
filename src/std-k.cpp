@@ -164,5 +164,10 @@ void k::ReplaceFirst(std::string &s ,std::string const &ToReplace, std::string c
         s.replace(pos, ToReplace.length(), ReplaceWith);
 }
 
+bool k::Sleep(const long long Milliseconds) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(Milliseconds));
+    return true;
+}
+
 // TODO added colour printing functions
 

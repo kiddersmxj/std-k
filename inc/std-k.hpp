@@ -11,6 +11,8 @@
 #include <sstream>
 #include <numeric>
 #include <math.h>
+#include <chrono>
+#include <thread>
 
 const std::string HOME = getenv("HOME");
 
@@ -33,6 +35,7 @@ namespace k {
     bool IsInteger(std::string str);
     bool IsNegative(int Num);
     void ReplaceFirst(std::string &s ,std::string const &ToReplace, std::string const &ReplaceWith);
+    bool Sleep(const long long Milliseconds);
 }
 
 #endif

@@ -3,16 +3,8 @@
 
 #include <iostream>
 #include <array>
-#include <fstream>
 #include <vector>
-#include <string>
-#include <cstring>
-#include <algorithm>
-#include <sstream>
-#include <numeric>
-#include <math.h>
-#include <chrono>
-#include <thread>
+#include <sys/stat.h>
 
 const std::string HOME = getenv("HOME");
 
@@ -36,6 +28,7 @@ namespace k {
     bool IsNegative(int Num);
     void ReplaceFirst(std::string &s ,std::string const &ToReplace, std::string const &ReplaceWith);
     bool Sleep(const long long Milliseconds);
+    bool MkDir(std::string Path);
 }
 
 #endif

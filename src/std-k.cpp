@@ -1,5 +1,18 @@
 #include "../inc/std-k.hpp"
 
+#include <fstream>
+#include <string>
+#include <cstring>
+#include <algorithm>
+#include <sstream>
+#include <numeric>
+#include <math.h>
+#include <chrono>
+#include <thread>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 // NULL function to attach breakpoint to in gdb
 void k::BreakPoint(void) {
     std::cout << "";
@@ -167,6 +180,13 @@ void k::ReplaceFirst(std::string &s ,std::string const &ToReplace, std::string c
 bool k::Sleep(const long long Milliseconds) {
     std::this_thread::sleep_for(std::chrono::milliseconds(Milliseconds));
     return true;
+}
+
+bool k::MkDir(std::string Path) {
+    const char *P = Path.c_str();
+    if(mkdir(P, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH))
+        return 1;
+    return 0;
 }
 
 // TODO added colour printing functions

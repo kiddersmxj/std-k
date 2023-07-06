@@ -17,56 +17,33 @@ void k::BreakPoint(void) {
     std::cout << "";
 }
 
-std::string k::ExecCmd(const std::string Cmd, const std::string &Output) {
+int k::ExecCmd(const std::string Cmd, std::string &Output) {
     int ExitStatus = 0;
 	auto pPipe = ::popen(Cmd.c_str(), "r");
-	if(pPipe == nullptr)
-	{
-	    throw std::runtime_error("Cannot open pipe");	
-	}
+	if(pPipe == nullptr) throw std::runtime_error("Cannot open pipe");	
 
     std::array<char, 256> buffer;
-
-    std::string result;
-
 	while(not feof(pPipe)) {
 	    auto bytes = fread(buffer.data(), 1, buffer.size(), pPipe);
-	    result.append(buffer.data(), bytes);
+	    Output.append(buffer.data(), bytes);
 	}
 
 	auto rc = ::pclose(pPipe);
-
-    if(WIFEXITED(rc)) {
+    if(WIFEXITED(rc))
 	    ExitStatus = WEXITSTATUS(rc);
-	}
 
-	return result;
+	return ExitStatus;
 }
 
-std::string k::ExecCmd(const std::string Cmd) {
+int k::ExecCmd(const std::string Cmd) {
     int ExitStatus = 0;
 	auto pPipe = ::popen(Cmd.c_str(), "r");
-	if(pPipe == nullptr)
-	{
-	    throw std::runtime_error("Cannot open pipe");	
-	}
-
-    std::array<char, 256> buffer;
-
-    std::string result;
-
-	while(not feof(pPipe)) {
-	    auto bytes = fread(buffer.data(), 1, buffer.size(), pPipe);
-	    result.append(buffer.data(), bytes);
-	}
-
+	if(pPipe == nullptr) throw std::runtime_error("Cannot open pipe");	
 	auto rc = ::pclose(pPipe);
-
-    if(WIFEXITED(rc)) {
+    if(WIFEXITED(rc))
 	    ExitStatus = WEXITSTATUS(rc);
-	}
 
-	return result;
+	return ExitStatus;
 }
 
 void k::VPrint(std::vector<std::string> Input) {

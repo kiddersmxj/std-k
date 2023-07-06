@@ -43,6 +43,32 @@ std::string k::ExecCmd(const std::string Cmd, const std::string &Output) {
 	return result;
 }
 
+std::string k::ExecCmd(const std::string Cmd) {
+    int ExitStatus = 0;
+	auto pPipe = ::popen(Cmd.c_str(), "r");
+	if(pPipe == nullptr)
+	{
+	    throw std::runtime_error("Cannot open pipe");	
+	}
+
+    std::array<char, 256> buffer;
+
+    std::string result;
+
+	while(not feof(pPipe)) {
+	    auto bytes = fread(buffer.data(), 1, buffer.size(), pPipe);
+	    result.append(buffer.data(), bytes);
+	}
+
+	auto rc = ::pclose(pPipe);
+
+    if(WIFEXITED(rc)) {
+	    ExitStatus = WEXITSTATUS(rc);
+	}
+
+	return result;
+}
+
 void k::VPrint(std::vector<std::string> Input) {
 	for(std::string Output: Input)
 	    std::cout << Output << std::endl;

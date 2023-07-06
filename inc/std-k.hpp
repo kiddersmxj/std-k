@@ -10,6 +10,7 @@ const std::string HOME = getenv("HOME");
 namespace k {
     void BreakPoint();
     std::string ExecCmd(const std::string Cmd, const std::string &Output);
+    std::string ExecCmd(const std::string Cmd);
     void WriteFileLines(std::vector<std::string> Lines, std::string File);
     std::vector<std::string> ReadFileLines(std::string File);
     void VPrint(std::vector<std::string> Input);

@@ -10,16 +10,16 @@
 #include <chrono>
 #include <thread>
 #include <filesystem>
-
-namespace fs = std::filesystem;
+#include <sys/stat.h>
 
 // NULL function to attach breakpoint to in gdb
 void k::BreakPoint(void) {
     std::cout << "";
 }
 
-std::string k::ExecCmd(const std::string cmd, const int Output, int ExitStatus) {
-	auto pPipe = ::popen(cmd.c_str(), "r");
+std::string k::ExecCmd(const std::string Cmd, const std::string &Output) {
+    int ExitStatus = 0;
+	auto pPipe = ::popen(Cmd.c_str(), "r");
 	if(pPipe == nullptr)
 	{
 	    throw std::runtime_error("Cannot open pipe");	
@@ -35,9 +35,6 @@ std::string k::ExecCmd(const std::string cmd, const int Output, int ExitStatus) 
 	}
 
 	auto rc = ::pclose(pPipe);
-
-    if(Output == 1)
-        std::cout << result << std::endl;
 
     if(WIFEXITED(rc)) {
 	    ExitStatus = WEXITSTATUS(rc);

@@ -217,5 +217,11 @@ double k::Time::Close() {
     return milliseconds;
 }
 
+std::string k::RemoveWhitespace(std::string str) {
+    str.erase(remove_if(str.begin(), str.end(), isspace), \
+          str.end());
+    return str;
+}
+
 // TODO added colour printing functions
 

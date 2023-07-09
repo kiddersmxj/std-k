@@ -31,6 +31,7 @@ namespace k {
     bool Sleep(const long long Milliseconds);
     bool MkDir(std::string Path);
     void WriteFileLines(std::string Lines, std::string File);
+	std::string RemoveWhitespace(std::string str);
     
     class Time {
         public:

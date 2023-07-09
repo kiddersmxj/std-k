@@ -204,14 +204,15 @@ k::Time::Time() {
 }
 
 k::Time::~Time() {
-    if(!Closed)
+    if(!Closed) {
         Close();
+        std::cout << "Exec: " << milliseconds << "ms" << std::endl;
+    } else Close();
 }
 
 double k::Time::Close() {
     End = std::chrono::system_clock::now();
-    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(End - Start).count();
-        std::cout << "Exec: " << milliseconds << "ms" << std::endl;
+    milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(End - Start).count();
     Closed = 1;
     return milliseconds;
 }

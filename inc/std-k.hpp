@@ -39,6 +39,7 @@ namespace k {
             double Close();
         private:
             bool Closed = 0;
+			double milliseconds;
             std::chrono::system_clock::time_point Start;
             std::chrono::system_clock::time_point End;
     };

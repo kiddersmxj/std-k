@@ -1,6 +1,7 @@
 #ifndef Kstd
 #define Kstd
 
+#include <chrono>
 #include <iostream>
 #include <array>
 #include <vector>
@@ -30,6 +31,17 @@ namespace k {
     bool Sleep(const long long Milliseconds);
     bool MkDir(std::string Path);
     void WriteFileLines(std::string Lines, std::string File);
+    
+    class Time {
+        public:
+            Time();
+            ~Time();
+            auto Close();
+        private:
+            bool Echo;
+            std::chrono::system_clock::time_point Start;
+            std::chrono::system_clock::time_point End;
+    };
 }
 
 #endif

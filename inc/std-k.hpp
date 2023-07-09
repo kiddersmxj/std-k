@@ -38,7 +38,7 @@ namespace k {
             ~Time();
             double Close();
         private:
-            bool Echo;
+            bool Echo = 0;
             std::chrono::system_clock::time_point Start;
             std::chrono::system_clock::time_point End;
     };

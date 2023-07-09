@@ -205,7 +205,7 @@ k::Time::Time() {
 
 auto k::Time::Close() {
     End = std::chrono::system_clock::now();
-    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(Start - End).count();
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(End - Start).count();
     if(Echo)
         std::cout << "Exec: " << milliseconds << "ms" << std::endl;
     return milliseconds;

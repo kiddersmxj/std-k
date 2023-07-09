@@ -36,7 +36,7 @@ namespace k {
         public:
             Time();
             ~Time();
-            auto Close();
+            double Close();
         private:
             bool Echo;
             std::chrono::system_clock::time_point Start;

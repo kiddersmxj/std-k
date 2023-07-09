@@ -203,17 +203,17 @@ k::Time::Time() {
     Start = std::chrono::system_clock::now();
 }
 
-auto k::Time::Close() {
+k::Time::~Time() {
+    Echo = 1;
+    Close();
+}
+
+double k::Time::Close() {
     End = std::chrono::system_clock::now();
     auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(End - Start).count();
     if(Echo)
         std::cout << "Exec: " << milliseconds << "ms" << std::endl;
     return milliseconds;
-}
-
-k::Time::~Time() {
-    Echo = 1;
-    Close();
 }
 
 // TODO added colour printing functions

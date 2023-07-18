@@ -86,13 +86,16 @@ std::string k::StripTrailingNL(std::string Input) {
     return Input;
 }
 
-void k::SplitString(std::string &str, char delim, std::vector<std::string> &out) { 
+void k::SplitString(std::string &str, char delim, std::vector<std::string> &out, bool NoWhitespace) { 
     // construct a stream from the string 
     std::stringstream ss(str); 
  
     std::string s; 
-    while (std::getline(ss, s, delim)) { 
-        out.push_back(s); 
+    while(std::getline(ss, s, delim)) { 
+        if(NoWhitespace)
+            out.push_back(RemoveWhitespace(s)); 
+        else
+            out.push_back(s);
     } 
 } 
 

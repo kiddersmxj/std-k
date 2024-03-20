@@ -32,6 +32,7 @@ namespace k {
     bool MkDir(std::string Path);
     void WriteFileLines(std::string Lines, std::string File);
 	std::string RemoveWhitespace(std::string str);
+	void WriteOnSameLine(std::string Line);
     
     class Time {
         public:

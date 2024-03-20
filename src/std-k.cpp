@@ -226,5 +226,9 @@ std::string k::RemoveWhitespace(std::string str) {
     return str;
 }
 
+void k::WriteOnSameLine(std::string Line) {
+    std::cout << "\r" << Line << std::flush;
+}
+
 // TODO added colour printing functions
 

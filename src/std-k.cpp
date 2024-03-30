@@ -212,7 +212,7 @@ k::Time::Time(T &CurrentTime) {
     // Convert to struct tm
     std::tm* timeinfo = std::localtime(&currentTime);
 
-    CurrentTime = { .Year = timeinfo->tm_year, .Month = timeinfo->tm_mon, \
+    CurrentTime = { .Year = (timeinfo->tm_year+1900), .Month = (timeinfo->tm_mon+1), \
         .Day = timeinfo->tm_mday, .Hour = timeinfo->tm_hour, .Min = timeinfo->tm_min, \
         .Sec = timeinfo->tm_sec };
 }

@@ -207,6 +207,7 @@ k::Time::Time() {
 }
 
 k::Time::Time(T &CurrentTime) {
+    Closed = 1;
     // Get current time
     std::time_t currentTime = std::time(nullptr);
     // Convert to struct tm

@@ -33,10 +33,20 @@ namespace k {
     void WriteFileLines(std::string Lines, std::string File);
 	std::string RemoveWhitespace(std::string str);
 	void WriteOnSameLine(std::string Line);
+
+	typedef struct {
+		int Year;
+		int Month;
+		int Day;
+		int Hour;
+		int Min;
+		int Sec;
+	} T;
     
     class Time {
         public:
             Time();
+            Time(T &CurrentTime);
             ~Time();
             double Close();
         private:

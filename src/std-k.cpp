@@ -206,18 +206,6 @@ k::Time::Time() {
     Start = std::chrono::system_clock::now();
 }
 
-k::Time::Time(T &CurrentTime) {
-    Closed = 1;
-    // Get current time
-    std::time_t currentTime = std::time(nullptr);
-    // Convert to struct tm
-    std::tm* timeinfo = std::localtime(&currentTime);
-
-    CurrentTime = { .Year = (timeinfo->tm_year+1900), .Month = (timeinfo->tm_mon+1), \
-        .Day = timeinfo->tm_mday, .Hour = timeinfo->tm_hour, .Min = timeinfo->tm_min, \
-        .Sec = timeinfo->tm_sec };
-}
-
 k::Time::~Time() {
     if(!Closed) {
         Close();

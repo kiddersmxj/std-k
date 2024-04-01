@@ -34,19 +34,80 @@ namespace k {
 	std::string RemoveWhitespace(std::string str);
 	void WriteOnSameLine(std::string Line);
 
-	typedef struct {
+
+	typedef struct CurrentTime {
 		int Year;
 		int Month;
 		int Day;
 		int Hour;
 		int Min;
 		int Sec;
+		std::string Date;
+		std::string Time;
+		CurrentTime() {
+			// Get current time
+			std::time_t currentTime = std::time(nullptr);
+			// Convert to struct tm
+			std::tm* timeinfo = std::localtime(&currentTime);
+
+			Year = (timeinfo->tm_year+1900);
+			Month = (timeinfo->tm_mon+1);
+			Day = timeinfo->tm_mday;
+			Hour = timeinfo->tm_hour;
+			Min = timeinfo->tm_min;
+			Sec = timeinfo->tm_sec;
+
+			Date = std::to_string(Year) + "-" + std::to_string(Month) + "-" + std::to_string(Day);
+			Time = std::to_string(Hour) + ":" + std::to_string(Min) + ":" + std::to_string(Sec);
+		}
+	} CurrentTime;
+
+	typedef struct T {
+		int Year;
+		int Month;
+		int Day;
+		int Hour;
+		int Min;
+		int Sec;
+		std::string Date;
+		std::string Time;
+
+		T(int year, int month, int day, int hour, int min, int sec) : Year(year), Month(month), Day(day), \
+																	Hour(hour), Min(min), Sec(sec) {
+			Date = std::to_string(Year) + "-" + std::to_string(Month) + "-" + std::to_string(Day);
+			Time = std::to_string(Hour) + ":" + std::to_string(Min) + ":" + std::to_string(Sec);
+		}
+
+		T(int hour, int min, int sec) : Hour(hour), Min(min), Sec(sec) {
+			Time = std::to_string(Hour) + ":" + std::to_string(Min) + ":" + std::to_string(Sec);
+		}
+
+		T(int year, int month, int day, bool isDate) : Year(year), Month(month), Day(day) {
+			Date = std::to_string(Year) + "-" + std::to_string(Month) + "-" + std::to_string(Day);
+		}
+
+
+		T() {
+			// Get current time
+			std::time_t currentTime = std::time(nullptr);
+			// Convert to struct tm
+			std::tm* timeinfo = std::localtime(&currentTime);
+
+			Year = (timeinfo->tm_year+1900);
+			Month = (timeinfo->tm_mon+1);
+			Day = timeinfo->tm_mday;
+			Hour = timeinfo->tm_hour;
+			Min = timeinfo->tm_min;
+			Sec = timeinfo->tm_sec;
+
+			Date = std::to_string(Year) + "-" + std::to_string(Month) + "-" + std::to_string(Day);
+			Time = std::to_string(Hour) + ":" + std::to_string(Min) + ":" + std::to_string(Sec);
+		}
 	} T;
     
     class Time {
         public:
             Time();
-            Time(T &CurrentTime);
             ~Time();
             double Close();
         private:

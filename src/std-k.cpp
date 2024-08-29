@@ -46,29 +46,50 @@ int k::ExecCmd(const std::string Cmd) {
 	return ExitStatus;
 }
 
-int ExecCmdOrphan(const std::string Cmd) {
+int k::ExecCmdOrphan(std::string Cmd) {
+    // Fork the process
     pid_t pid = fork();
-    if (pid < 0) { // If the fork failed
-        throw std::runtime_error("Fork failed");
-    } else if (pid == 0) { // Child process
-        // Redirect stdout and stderr to /dev/null
-        freopen("/dev/null", "w", stdout);
-        freopen("/dev/null", "w", stderr);
-        execl("/bin/sh", "sh", "-c", Cmd.c_str(), (char*)nullptr);
-        // If execl returns, it must have failed.
-        exit(127); // Indicate error
-    } else { // Parent process
-        // Wait for child process to complete
-        int status;
-        if (waitpid(pid, &status, 0) != pid) {
-            status = -1; // waitpid() failed
-        }
-        if (WIFEXITED(status)) {
-            return WEXITSTATUS(status);
-        } else {
-            return -1;
-        }
+
+    if (pid < 0) {
+        // If fork failed
+        std::cerr << "Fork failed." << std::endl;
+        return EXIT_FAILURE;
     }
+
+    if (pid > 0) {
+        // Parent process
+        // Don't wait for child process, simply return to allow the main program to continue
+        return EXIT_SUCCESS;
+    }
+
+    if (pid == 0) {
+        // Child process
+        
+        // Create a new session, making the process an orphan
+        pid_t sid = setsid();
+        if (sid < 0) {
+            std::cerr << "Failed to create a new session." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        // Execute the command using execvp
+        // Tokenize the command
+        std::string executable = "/bin/sh";
+        std::string arg1 = "-c";
+        const char *argv[] = { executable.c_str(), arg1.c_str(), Cmd.c_str(), nullptr };
+
+        // Close standard file descriptors to detach from the terminal
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
+
+        execvp(argv[0], (char * const *)argv);
+
+        // If execvp returns, it must have failed
+        std::cerr << "Exec failed." << std::endl;
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
 
 void k::VPrint(std::vector<std::string> Input) {

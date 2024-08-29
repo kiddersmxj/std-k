@@ -45,6 +45,21 @@ int k::ExecCmd(const std::string Cmd) {
 	return ExitStatus;
 }
 
+int ExecCmdOrphan(const std::string Cmd) {
+    int ExitStatus = 0;
+    std::string OrphanCmd = "nohup " + Cmd + " > /dev/null 2>&1 &";
+
+    auto pPipe = ::popen(OrphanCmd.c_str(), "r");
+    if (pPipe == nullptr) throw std::runtime_error("Cannot open pipe");
+    
+    // Since this is meant to run in the background, we can directly close the pipe without waiting
+    auto rc = ::pclose(pPipe);
+    if (WIFEXITED(rc))
+        ExitStatus = WEXITSTATUS(rc);
+
+    return ExitStatus;
+}
+
 void k::VPrint(std::vector<std::string> Input) {
 	for(std::string Output: Input)
 	    std::cout << Output << std::endl;

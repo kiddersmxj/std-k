@@ -46,7 +46,7 @@ int k::ExecCmd(const std::string Cmd) {
 	return ExitStatus;
 }
 
-int ExecCmdOrphan(const std::string& Cmd) {
+int ExecCmdOrphan(const std::string Cmd) {
     pid_t pid = fork();
     if (pid < 0) { // If the fork failed
         throw std::runtime_error("Fork failed");

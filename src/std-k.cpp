@@ -10,6 +10,7 @@
 #include <thread>
 #include <filesystem>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 // NULL function to attach breakpoint to in gdb
 void k::BreakPoint(void) {
@@ -45,19 +46,29 @@ int k::ExecCmd(const std::string Cmd) {
 	return ExitStatus;
 }
 
-int k::ExecCmdOrphan(const std::string Cmd) {
-    int ExitStatus = 0;
-    std::string OrphanCmd = "nohup " + Cmd + " > /dev/null 2>&1 &";
-
-    auto pPipe = ::popen(OrphanCmd.c_str(), "r");
-    if (pPipe == nullptr) throw std::runtime_error("Cannot open pipe");
-    
-    // Since this is meant to run in the background, we can directly close the pipe without waiting
-    auto rc = ::pclose(pPipe);
-    if (WIFEXITED(rc))
-        ExitStatus = WEXITSTATUS(rc);
-
-    return ExitStatus;
+int ExecCmdOrphan(const std::string& Cmd) {
+    pid_t pid = fork();
+    if (pid < 0) { // If the fork failed
+        throw std::runtime_error("Fork failed");
+    } else if (pid == 0) { // Child process
+        // Redirect stdout and stderr to /dev/null
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
+        execl("/bin/sh", "sh", "-c", Cmd.c_str(), (char*)nullptr);
+        // If execl returns, it must have failed.
+        exit(127); // Indicate error
+    } else { // Parent process
+        // Wait for child process to complete
+        int status;
+        if (waitpid(pid, &status, 0) != pid) {
+            status = -1; // waitpid() failed
+        }
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        } else {
+            return -1;
+        }
+    }
 }
 
 void k::VPrint(std::vector<std::string> Input) {

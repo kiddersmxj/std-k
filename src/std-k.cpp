@@ -45,7 +45,7 @@ int k::ExecCmd(const std::string Cmd) {
 	return ExitStatus;
 }
 
-int ExecCmdOrphan(const std::string Cmd) {
+int k::ExecCmdOrphan(const std::string Cmd) {
     int ExitStatus = 0;
     std::string OrphanCmd = "nohup " + Cmd + " > /dev/null 2>&1 &";
 

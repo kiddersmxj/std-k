@@ -1,6 +1,12 @@
 #ifndef Kstd
 #define Kstd
 
+
+#include <unordered_map>
+#include <string>
+#include <stdexcept>
+#include <sstream>
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <array>
@@ -117,6 +123,35 @@ namespace k {
             std::chrono::system_clock::time_point Start;
             std::chrono::system_clock::time_point End;
     };
+
+	namespace config {
+
+		std::string trim(const std::string& str);
+
+		// Parses a custom config file and returns a map of key-value pairs
+		std::unordered_map<std::string, std::string> parseConfigFile(const std::string& filePath);
+
+		// Utility function to convert a string to a specific type (e.g., int, bool, float)
+		template <typename T>
+		T convertTo(const std::string& str);
+
+		template <>
+		bool convertTo<bool>(const std::string& str);
+
+		struct ConfigLoader {
+			const std::unordered_map<std::string, std::string>& config;
+
+			template <typename T>
+			T get(const std::string& key, T defaultValue) const;
+		};
+
+// Macros for different types to simplify variable declaration
+#define CONFIG_STR(loader, var, key, defaultVal) std::string var = loader.get<std::string>(key, defaultVal)
+#define CONFIG_INT(loader, var, key, defaultVal) int var = loader.get<int>(key, defaultVal)
+#define CONFIG_BOOL(loader, var, key, defaultVal) bool var = loader.get<bool>(key, defaultVal)
+#define CONFIG_FLOAT(loader, var, key, defaultVal) float var = loader.get<float>(key, defaultVal)
+
+	} // namespace config
 }
 
 #endif

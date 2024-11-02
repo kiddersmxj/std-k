@@ -277,5 +277,84 @@ void k::WriteOnSameLine(std::string Line) {
     std::cout << "\r" << Line << std::flush;
 }
 
+std::string k::config::trim(const std::string& str) {
+    size_t first = str.find_first_not_of(" \t");
+    if (first == std::string::npos) return "";
+    size_t last = str.find_last_not_of(" \t");
+    return str.substr(first, (last - first + 1));
+}
+
+std::unordered_map<std::string, std::string> k::config::parseConfigFile(const std::string& filePath) {
+    std::unordered_map<std::string, std::string> config;
+    std::ifstream file(filePath);
+    std::string line;
+    std::string currentSection;
+
+    if (!file.is_open()) {
+        throw std::runtime_error("Unable to open file: " + filePath);
+    }
+
+    while (std::getline(file, line)) {
+        size_t commentPos = line.find('#');
+        if (commentPos != std::string::npos) {
+            line = line.substr(0, commentPos);
+        }
+
+        line = trim(line);
+
+        if (line.empty()) {
+            continue;
+        }
+
+        if (line.front() == '[' && line.back() == ']') {
+            currentSection = trim(line.substr(1, line.size() - 2));
+        } else {
+            size_t delimiterPos = line.find('=');
+            if (delimiterPos == std::string::npos) {
+                throw std::runtime_error("Invalid config line: " + line);
+            }
+
+            std::string key = trim(line.substr(0, delimiterPos));
+            std::string value = trim(line.substr(delimiterPos + 1));
+
+            if (!currentSection.empty()) {
+                key = currentSection + "." + key;
+            }
+
+            config[key] = value;
+        }
+    }
+
+    file.close();
+    return config;
+}
+
+template <typename T>
+T k::config::convertTo(const std::string& str) {
+    std::istringstream iss(str);
+    T value;
+    if (!(iss >> value)) {
+        throw std::runtime_error("Conversion error for value: " + str);
+    }
+    return value;
+}
+
+template <>
+bool k::config::convertTo<bool>(const std::string& str) {
+    std::string lowerStr = str;
+    std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+    if (lowerStr == "true" || lowerStr == "1") return true;
+    if (lowerStr == "false" || lowerStr == "0") return false;
+    throw std::runtime_error("Invalid boolean value: " + str);
+}
+
+template <typename T>
+T k::config::ConfigLoader::get(const std::string& key, T defaultValue) const {
+    if (config.count(key)) {
+        return convertTo<T>(config.at(key));
+    }
+    return defaultValue;
+}
+
 // TODO added colour printing functions
 

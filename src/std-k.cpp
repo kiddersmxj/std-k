@@ -358,5 +358,9 @@ bool k::config::Config::load(const std::string& filename) {
     return true;
 }
 
+bool k::config::Config::contains(const std::string& key) const {
+    return data.find(key) != data.end();
+}
+
 // TODO added colour printing functions
 

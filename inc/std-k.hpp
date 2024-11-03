@@ -136,6 +136,10 @@ namespace k {
             template<typename T>
             T get(const std::string& key, const T& default_value = T()) const;
 
+            // Retrieve a required value with a given key path
+            template<typename T>
+            T get_required(const std::string& key) const;
+
             // Check if a key exists
             bool contains(const std::string& key) const;
 
@@ -166,12 +170,44 @@ namespace k {
             return value;
         }
 
+        template<typename T>
+        T Config::get_required(const std::string& key) const {
+            auto it = data.find(key);
+            if (it == data.end()) {
+                throw std::runtime_error("Required configuration key not found: " + key);
+            }
+
+            std::istringstream iss(it->second);
+            T value;
+            if (!(iss >> std::boolalpha >> value)) {
+                throw std::runtime_error("Invalid value for key: " + key);
+            }
+            return value;
+        }
+
         // Specialization for std::string
         template<>
         inline std::string Config::get<std::string>(const std::string& key, const std::string& default_value) const {
             auto it = data.find(key);
             if (it == data.end())
                 return default_value;
+
+            std::string value = it->second;
+
+            // Remove surrounding quotes if present
+            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
+                value = value.substr(1, value.size() - 2);
+            }
+
+            return value;
+        }
+
+        template<>
+        inline std::string Config::get_required<std::string>(const std::string& key) const {
+            auto it = data.find(key);
+            if (it == data.end()) {
+                throw std::runtime_error("Required configuration key not found: " + key);
+            }
 
             std::string value = it->second;
 
@@ -192,33 +228,76 @@ namespace k {
 
             std::string value = it->second;
 
-            // Expecting value in the form ["item1", "item2", "item3"]
+            // Remove surrounding brackets if present
             if (value.size() >= 2 && value.front() == '[' && value.back() == ']') {
                 value = value.substr(1, value.size() - 2); // Remove [ and ]
 
                 std::vector<std::string> result;
-                std::istringstream iss(value);
                 std::string item;
+                std::istringstream iss(value);
+
                 while (std::getline(iss, item, ',')) {
-                    // Trim whitespace
-                    item.erase(0, item.find_first_not_of(" \t\n\r"));
-                    item.erase(item.find_last_not_of(" \t\n\r") + 1);
+                    // Trim whitespace and newlines
+                    item.erase(0, item.find_first_not_of(" \t\n\r\""));
+                    item.erase(item.find_last_not_of(" \t\n\r\"") + 1);
 
                     // Remove surrounding quotes if present
-                    if (item.size() >= 2 && item.front() == '"' && item.back() == '"') {
+                    if (!item.empty() && item.front() == '"' && item.back() == '"') {
                         item = item.substr(1, item.size() - 2);
                     }
 
-                    result.push_back(item);
+                    if (!item.empty()) {
+                        result.push_back(item);
+                    }
                 }
                 return result;
             }
             return default_value;
         }
 
-// Macro to initialize configuration variables with default values
+        template<>
+        inline std::vector<std::string> Config::get_required<std::vector<std::string>>(const std::string& key) const {
+            auto it = data.find(key);
+            if (it == data.end()) {
+                throw std::runtime_error("Required configuration key not found: " + key);
+            }
+
+            std::string value = it->second;
+
+            // Remove surrounding brackets if present
+            if (value.size() >= 2 && value.front() == '[' && value.back() == ']') {
+                value = value.substr(1, value.size() - 2); // Remove [ and ]
+
+                std::vector<std::string> result;
+                std::string item;
+                std::istringstream iss(value);
+
+                while (std::getline(iss, item, ',')) {
+                    // Trim whitespace and newlines
+                    item.erase(0, item.find_first_not_of(" \t\n\r\""));
+                    item.erase(item.find_last_not_of(" \t\n\r\"") + 1);
+
+                    // Remove surrounding quotes if present
+                    if (!item.empty() && item.front() == '"' && item.back() == '"') {
+                        item = item.substr(1, item.size() - 2);
+                    }
+
+                    if (!item.empty()) {
+                        result.push_back(item);
+                    }
+                }
+                return result;
+            } else {
+                throw std::runtime_error("Invalid format for key: " + key);
+            }
+        }
+
+// Macros to initialize configuration variables
 #define KCONFIG_VAR(varname, key_path, default_value) \
     varname = k::config::Config::getInstance().get<decltype(varname)>(key_path, default_value);
+
+#define KCONFIG_VAR_REQUIRED(varname, key_path) \
+    varname = k::config::Config::getInstance().get_required<decltype(varname)>(key_path);
 
     } // namespace config
 }

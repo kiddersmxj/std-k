@@ -1,16 +1,15 @@
 #ifndef Kstd
 #define Kstd
 
-
-#include <unordered_map>
-#include <string>
-#include <stdexcept>
-#include <sstream>
-#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <array>
 #include <vector>
+#include <string>
+#include <unordered_map>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
 
 const std::string HOME = getenv("HOME");
 
@@ -124,34 +123,102 @@ namespace k {
             std::chrono::system_clock::time_point End;
     };
 
-	namespace config {
+    namespace config {
+        class Config {
+        public:
+            Config() = default;
 
-		std::string trim(const std::string& str);
+            // Load configuration from a file
+            bool load(const std::string& filename);
 
-		// Parses a custom config file and returns a map of key-value pairs
-		std::unordered_map<std::string, std::string> parseConfigFile(const std::string& filePath);
+            // Retrieve a value with a given key path
+            template<typename T>
+            T get(const std::string& key, const T& default_value = T()) const;
 
-		// Utility function to convert a string to a specific type (e.g., int, bool, float)
-		template <typename T>
-		T convertTo(const std::string& str);
+            // Check if a key exists
+            bool contains(const std::string& key) const;
 
-		template <>
-		bool convertTo<bool>(const std::string& str);
+        private:
+            std::unordered_map<std::string, std::string> data;
 
-		struct ConfigLoader {
-			const std::unordered_map<std::string, std::string>& config;
+            // Helper methods
+            bool parseLine(const std::string& line, std::string& current_section);
+        };
 
-			template <typename T>
-			T get(const std::string& key, T defaultValue) const;
-		};
+        // Implementation of template methods
 
-// Macros for different types to simplify variable declaration
-#define CONFIG_STR(loader, var, key, defaultVal) std::string var = loader.get<std::string>(key, defaultVal)
-#define CONFIG_INT(loader, var, key, defaultVal) int var = loader.get<int>(key, defaultVal)
-#define CONFIG_BOOL(loader, var, key, defaultVal) bool var = loader.get<bool>(key, defaultVal)
-#define CONFIG_FLOAT(loader, var, key, defaultVal) float var = loader.get<float>(key, defaultVal)
+        template<typename T>
+        T Config::get(const std::string& key, const T& default_value) const {
+            auto it = data.find(key);
+            if (it == data.end())
+                return default_value;
 
-	} // namespace config
+            std::istringstream iss(it->second);
+            T value;
+            if (!(iss >> std::boolalpha >> value)) {
+                return default_value;
+            }
+            return value;
+        }
+
+        // Specialization for std::string
+        template<>
+        inline std::string Config::get<std::string>(const std::string& key, const std::string& default_value) const {
+            auto it = data.find(key);
+            if (it == data.end())
+                return default_value;
+
+            std::string value = it->second;
+
+            // Remove surrounding quotes if present
+            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
+                value = value.substr(1, value.size() - 2);
+            }
+
+            return value;
+        }
+
+        // Specialization for std::vector<std::string>
+        template<>
+        inline std::vector<std::string> Config::get<std::vector<std::string>>(const std::string& key, const std::vector<std::string>& default_value) const {
+            auto it = data.find(key);
+            if (it == data.end())
+                return default_value;
+
+            std::string value = it->second;
+
+            // Expecting value in the form ["item1", "item2", "item3"]
+            if (value.size() >= 2 && value.front() == '[' && value.back() == ']') {
+                value = value.substr(1, value.size() - 2); // Remove [ and ]
+
+                std::vector<std::string> result;
+                std::istringstream iss(value);
+                std::string item;
+                while (std::getline(iss, item, ',')) {
+                    // Trim whitespace
+                    item.erase(0, item.find_first_not_of(" \t\n\r"));
+                    item.erase(item.find_last_not_of(" \t\n\r") + 1);
+
+                    // Remove surrounding quotes if present
+                    if (item.size() >= 2 && item.front() == '"' && item.back() == '"') {
+                        item = item.substr(1, item.size() - 2);
+                    }
+
+                    result.push_back(item);
+                }
+                return result;
+            }
+            return default_value;
+        }
+
+// Macros to simplify variable retrieval from the config file
+#define K_CONFIG_VAR(type, varname, key_path, default_value) \
+    type varname = config.get<type>(key_path, default_value);
+
+#define K_CONFIG_ARRAY(varname, key_path, default_value) \
+    auto varname = config.get<std::vector<std::string>>(key_path, default_value);
+
+    } // namespace config
 }
 
 #endif

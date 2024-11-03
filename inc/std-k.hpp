@@ -164,7 +164,113 @@ namespace k {
 
         // Implementation of template methods
 
-        // ... Existing template methods ...
+        // Template method for get
+        template<typename T>
+        T Config::get(const std::string& key, const T& default_value) const {
+            auto it = data.find(key);
+            if (it == data.end())
+                return default_value;
+
+            std::istringstream iss(it->second);
+            T value;
+            if (!(iss >> std::boolalpha >> value)) {
+                return default_value;
+            }
+            return value;
+        }
+
+        // Template method for get_required
+        template<typename T>
+        T Config::get_required(const std::string& key) const {
+            auto it = data.find(key);
+            if (it == data.end()) {
+                throw std::runtime_error("Required configuration key not found: " + key);
+            }
+
+            std::istringstream iss(it->second);
+            T value;
+            if (!(iss >> std::boolalpha >> value)) {
+                throw std::runtime_error("Invalid value for key: " + key);
+            }
+            return value;
+        }
+
+        // Specialization for std::string
+        template<>
+        inline std::string Config::get<std::string>(const std::string& key, const std::string& default_value) const {
+            auto it = data.find(key);
+            if (it == data.end())
+                return default_value;
+
+            std::string value = it->second;
+
+            // Remove surrounding quotes if present
+            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
+                value = value.substr(1, value.size() - 2);
+            }
+
+            return value;
+        }
+
+        template<>
+        inline std::string Config::get_required<std::string>(const std::string& key) const {
+            auto it = data.find(key);
+            if (it == data.end()) {
+                throw std::runtime_error("Required configuration key not found: " + key);
+            }
+
+            std::string value = it->second;
+
+            // Remove surrounding quotes if present
+            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
+                value = value.substr(1, value.size() - 2);
+            }
+
+            return value;
+        }
+
+        // getArray method implementation
+        template<typename T>
+        T Config::getArray(const std::string& key, const T& default_value) const {
+            auto it = data.find(key);
+            if (it == data.end())
+                return default_value;
+
+            std::string value = it->second;
+
+            // Check if value starts with '[' and ends with ']'
+            size_t first_bracket = value.find('[');
+            size_t last_bracket = value.rfind(']');
+            if (first_bracket == std::string::npos || last_bracket == std::string::npos || first_bracket >= last_bracket) {
+                return default_value;
+            }
+
+            value = value.substr(first_bracket + 1, last_bracket - first_bracket - 1); // Extract content inside [ ]
+
+            T result;
+            std::string item;
+            std::istringstream iss(value);
+
+            // Read each line and handle commas and newlines
+            while (std::getline(iss, item)) {
+                // Remove any commas
+                item.erase(std::remove(item.begin(), item.end(), ','), item.end());
+
+                // Trim whitespace and quotes
+                item.erase(0, item.find_first_not_of(" \t\n\r\""));
+                item.erase(item.find_last_not_of(" \t\n\r\"") + 1);
+
+                // Remove surrounding quotes if present
+                if (!item.empty() && item.front() == '"' && item.back() == '"') {
+                    item = item.substr(1, item.size() - 2);
+                }
+
+                if (!item.empty()) {
+                    result.push_back(item);
+                }
+            }
+            return result;
+        }
 
         // getArrayRequired method implementation
         template<typename T>

@@ -349,7 +349,7 @@ bool k::config::Config::load(const std::string& filename) {
             pending_key = key;
             pending_value = value_str + "\n";
         } else {
-            // Single-line value
+            // Single-line value or single-line array
             std::string full_key = current_section.empty() ? key : current_section + "." + key;
             data[full_key] = value_str;
         }

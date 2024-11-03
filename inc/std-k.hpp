@@ -144,6 +144,10 @@ namespace k {
             template<typename T>
             T getArray(const std::string& key, const T& default_value = T()) const;
 
+            // Retrieve a required array value with a given key path
+            template<typename T>
+            T getArrayRequired(const std::string& key) const;
+
             // Check if a key exists
             bool contains(const std::string& key) const;
 
@@ -160,75 +164,15 @@ namespace k {
 
         // Implementation of template methods
 
-        template<typename T>
-        T Config::get(const std::string& key, const T& default_value) const {
-            auto it = data.find(key);
-            if (it == data.end())
-                return default_value;
+        // ... Existing template methods ...
 
-            std::istringstream iss(it->second);
-            T value;
-            if (!(iss >> std::boolalpha >> value)) {
-                return default_value;
-            }
-            return value;
-        }
-
+        // getArrayRequired method implementation
         template<typename T>
-        T Config::get_required(const std::string& key) const {
+        T Config::getArrayRequired(const std::string& key) const {
             auto it = data.find(key);
             if (it == data.end()) {
-                throw std::runtime_error("Required configuration key not found: " + key);
+                throw std::runtime_error("Required array configuration key not found: " + key);
             }
-
-            std::istringstream iss(it->second);
-            T value;
-            if (!(iss >> std::boolalpha >> value)) {
-                throw std::runtime_error("Invalid value for key: " + key);
-            }
-            return value;
-        }
-
-        // Specialization for std::string
-        template<>
-        inline std::string Config::get<std::string>(const std::string& key, const std::string& default_value) const {
-            auto it = data.find(key);
-            if (it == data.end())
-                return default_value;
-
-            std::string value = it->second;
-
-            // Remove surrounding quotes if present
-            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
-                value = value.substr(1, value.size() - 2);
-            }
-
-            return value;
-        }
-
-        template<>
-        inline std::string Config::get_required<std::string>(const std::string& key) const {
-            auto it = data.find(key);
-            if (it == data.end()) {
-                throw std::runtime_error("Required configuration key not found: " + key);
-            }
-
-            std::string value = it->second;
-
-            // Remove surrounding quotes if present
-            if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
-                value = value.substr(1, value.size() - 2);
-            }
-
-            return value;
-        }
-
-        // getArray method implementation
-        template<typename T>
-        T Config::getArray(const std::string& key, const T& default_value) const {
-            auto it = data.find(key);
-            if (it == data.end())
-                return default_value;
 
             std::string value = it->second;
 
@@ -263,6 +207,7 @@ namespace k {
                     result.push_back(item);
                 }
             }
+
             return result;
         }
 
@@ -275,6 +220,9 @@ namespace k {
 
 #define KCONFIG_ARRAY(varname, key_path, default_value) \
     varname = k::config::Config::getInstance().getArray<decltype(varname)>(key_path, default_value);
+
+#define KCONFIG_ARRAY_REQUIRED(varname, key_path) \
+    varname = k::config::Config::getInstance().getArrayRequired<decltype(varname)>(key_path);
 
     } // namespace config
 }

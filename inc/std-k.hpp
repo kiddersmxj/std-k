@@ -140,6 +140,10 @@ namespace k {
             template<typename T>
             T get_required(const std::string& key) const;
 
+            // Retrieve an array value with a given key path
+            template<typename T>
+            T getArray(const std::string& key, const T& default_value = T()) const;
+
             // Check if a key exists
             bool contains(const std::string& key) const;
 
@@ -219,77 +223,47 @@ namespace k {
             return value;
         }
 
-        // Specialization for std::vector<std::string>
-        template<>
-        inline std::vector<std::string> Config::get<std::vector<std::string>>(const std::string& key, const std::vector<std::string>& default_value) const {
+        // getArray method implementation
+        template<typename T>
+        T Config::getArray(const std::string& key, const T& default_value) const {
             auto it = data.find(key);
             if (it == data.end())
                 return default_value;
 
             std::string value = it->second;
 
-            // Remove surrounding brackets if present
-            if (value.size() >= 2 && value.front() == '[' && value.back() == ']') {
-                value = value.substr(1, value.size() - 2); // Remove [ and ]
+            // Check if value starts with '[' and ends with ']'
+            size_t first_bracket = value.find('[');
+            size_t last_bracket = value.rfind(']');
+            if (first_bracket == std::string::npos || last_bracket == std::string::npos || first_bracket >= last_bracket) {
+                throw std::runtime_error("Invalid array format for key: " + key);
+            }
 
-                std::vector<std::string> result;
-                std::string item;
-                std::istringstream iss(value);
+            value = value.substr(first_bracket + 1, last_bracket - first_bracket - 1); // Extract content inside [ ]
 
-                while (std::getline(iss, item, ',')) {
-                    // Trim whitespace and newlines
-                    item.erase(0, item.find_first_not_of(" \t\n\r\""));
-                    item.erase(item.find_last_not_of(" \t\n\r\"") + 1);
+            T result;
+            std::string item;
+            std::istringstream iss(value);
 
-                    // Remove surrounding quotes if present
-                    if (!item.empty() && item.front() == '"' && item.back() == '"') {
-                        item = item.substr(1, item.size() - 2);
-                    }
+            // Read each line and handle commas and newlines
+            while (std::getline(iss, item)) {
+                // Remove any commas
+                item.erase(std::remove(item.begin(), item.end(), ','), item.end());
 
-                    if (!item.empty()) {
-                        result.push_back(item);
-                    }
+                // Trim whitespace and quotes
+                item.erase(0, item.find_first_not_of(" \t\n\r\""));
+                item.erase(item.find_last_not_of(" \t\n\r\"") + 1);
+
+                // Remove surrounding quotes if present
+                if (!item.empty() && item.front() == '"' && item.back() == '"') {
+                    item = item.substr(1, item.size() - 2);
                 }
-                return result;
-            }
-            return default_value;
-        }
 
-        template<>
-        inline std::vector<std::string> Config::get_required<std::vector<std::string>>(const std::string& key) const {
-            auto it = data.find(key);
-            if (it == data.end()) {
-                throw std::runtime_error("Required configuration key not found: " + key);
-            }
-
-            std::string value = it->second;
-
-            // Remove surrounding brackets if present
-            if (value.size() >= 2 && value.front() == '[' && value.back() == ']') {
-                value = value.substr(1, value.size() - 2); // Remove [ and ]
-
-                std::vector<std::string> result;
-                std::string item;
-                std::istringstream iss(value);
-
-                while (std::getline(iss, item, ',')) {
-                    // Trim whitespace and newlines
-                    item.erase(0, item.find_first_not_of(" \t\n\r\""));
-                    item.erase(item.find_last_not_of(" \t\n\r\"") + 1);
-
-                    // Remove surrounding quotes if present
-                    if (!item.empty() && item.front() == '"' && item.back() == '"') {
-                        item = item.substr(1, item.size() - 2);
-                    }
-
-                    if (!item.empty()) {
-                        result.push_back(item);
-                    }
+                if (!item.empty()) {
+                    result.push_back(item);
                 }
-                return result;
-            } else {
-                throw std::runtime_error("Invalid format for key: " + key);
             }
+            return result;
         }
 
 // Macros to initialize configuration variables
@@ -298,6 +272,9 @@ namespace k {
 
 #define KCONFIG_VAR_REQUIRED(varname, key_path) \
     varname = k::config::Config::getInstance().get_required<decltype(varname)>(key_path);
+
+#define KCONFIG_ARRAY(varname, key_path, default_value) \
+    varname = k::config::Config::getInstance().getArray<decltype(varname)>(key_path, default_value);
 
     } // namespace config
 }

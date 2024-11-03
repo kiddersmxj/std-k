@@ -291,7 +291,7 @@ bool k::config::Config::load(const std::string& filename) {
     std::string current_section;
     std::string pending_key;
     std::string pending_value;
-    bool is_multiline_value = false;
+    bool is_multiline_array = false;
 
     while (std::getline(infile, line)) {
         // Remove comments
@@ -307,17 +307,17 @@ bool k::config::Config::load(const std::string& filename) {
             continue;
 
         // Handle sections
-        if (!is_multiline_value && line.front() == '[' && line.back() == ']') {
+        if (!is_multiline_array && line.front() == '[' && line.back() == ']') {
             current_section = line.substr(1, line.size() - 2);
             continue;
         }
 
-        // Handle multi-line value
-        if (is_multiline_value) {
-            pending_value += line + "\n"; // Preserve newlines for arrays
+        // Handle multi-line array
+        if (is_multiline_array) {
+            pending_value += line + "\n"; // Preserve newlines
             if (line.find(']') != std::string::npos) {
-                // End of multi-line value
-                is_multiline_value = false;
+                // End of multi-line array
+                is_multiline_array = false;
                 std::string full_key = current_section.empty() ? pending_key : current_section + "." + pending_key;
                 data[full_key] = pending_value;
                 pending_key.clear();
@@ -343,9 +343,9 @@ bool k::config::Config::load(const std::string& filename) {
         value_str.erase(0, value_str.find_first_not_of(" \t\n\r"));
         value_str.erase(value_str.find_last_not_of(" \t\n\r") + 1);
 
-        // Check if value starts a multi-line value
+        // Check if value starts a multi-line array
         if (value_str.front() == '[' && value_str.back() != ']') {
-            is_multiline_value = true;
+            is_multiline_array = true;
             pending_key = key;
             pending_value = value_str + "\n";
         } else {

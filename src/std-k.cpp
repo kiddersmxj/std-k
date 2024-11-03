@@ -277,13 +277,11 @@ void k::WriteOnSameLine(std::string Line) {
     std::cout << "\r" << Line << std::flush;
 }
 
-// Implementing the singleton instance
 k::config::Config& k::config::Config::getInstance() {
     static Config instance;
     return instance;
 }
 
-// Load configuration from a file
 bool k::config::Config::load(const std::string& filename) {
     std::ifstream infile(filename);
     if (!infile.is_open())
@@ -291,6 +289,9 @@ bool k::config::Config::load(const std::string& filename) {
 
     std::string line;
     std::string current_section;
+    std::string pending_key;
+    std::string pending_value;
+    bool is_multiline_value = false;
 
     while (std::getline(infile, line)) {
         // Remove comments
@@ -306,44 +307,55 @@ bool k::config::Config::load(const std::string& filename) {
             continue;
 
         // Handle sections
-        if (line.front() == '[' && line.back() == ']') {
+        if (!is_multiline_value && line.front() == '[' && line.back() == ']') {
             current_section = line.substr(1, line.size() - 2);
             continue;
         }
 
+        // Handle multi-line value
+        if (is_multiline_value) {
+            pending_value += line + "\n"; // Preserve newlines for arrays
+            if (line.find(']') != std::string::npos) {
+                // End of multi-line value
+                is_multiline_value = false;
+                std::string full_key = current_section.empty() ? pending_key : current_section + "." + pending_key;
+                data[full_key] = pending_value;
+                pending_key.clear();
+                pending_value.clear();
+            }
+            continue;
+        }
+
         // Parse key-value pair
-        if (!parseLine(line, current_section))
-            return false;
+        auto equal_pos = line.find('=');
+        if (equal_pos == std::string::npos) {
+            // Invalid line, skip
+            continue;
+        }
+
+        std::string key = line.substr(0, equal_pos);
+        std::string value_str = line.substr(equal_pos + 1);
+
+        // Trim whitespace from key and value
+        key.erase(0, key.find_first_not_of(" \t\n\r"));
+        key.erase(key.find_last_not_of(" \t\n\r") + 1);
+
+        value_str.erase(0, value_str.find_first_not_of(" \t\n\r"));
+        value_str.erase(value_str.find_last_not_of(" \t\n\r") + 1);
+
+        // Check if value starts a multi-line value
+        if (value_str.front() == '[' && value_str.back() != ']') {
+            is_multiline_value = true;
+            pending_key = key;
+            pending_value = value_str + "\n";
+        } else {
+            // Single-line value
+            std::string full_key = current_section.empty() ? key : current_section + "." + key;
+            data[full_key] = value_str;
+        }
     }
 
     return true;
-}
-
-// Parse a line from the configuration file
-bool k::config::Config::parseLine(const std::string& line, std::string& current_section) {
-    auto equal_pos = line.find('=');
-    if (equal_pos == std::string::npos)
-        return false; // Invalid line
-
-    std::string key = line.substr(0, equal_pos);
-    std::string value_str = line.substr(equal_pos + 1);
-
-    // Trim whitespace from key and value
-    key.erase(0, key.find_first_not_of(" \t\n\r"));
-    key.erase(key.find_last_not_of(" \t\n\r") + 1);
-
-    value_str.erase(0, value_str.find_first_not_of(" \t\n\r"));
-    value_str.erase(value_str.find_last_not_of(" \t\n\r") + 1);
-
-    std::string full_key = current_section.empty() ? key : current_section + "." + key;
-    data[full_key] = value_str;
-
-    return true;
-}
-
-// Check if a key exists in the configuration
-bool k::config::Config::contains(const std::string& key) const {
-    return data.find(key) != data.end();
 }
 
 // TODO added colour printing functions

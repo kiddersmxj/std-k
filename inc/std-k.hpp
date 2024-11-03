@@ -126,7 +126,8 @@ namespace k {
     namespace config {
         class Config {
         public:
-            Config() = default;
+            // Get the singleton instance
+            static Config& getInstance();
 
             // Load configuration from a file
             bool load(const std::string& filename);
@@ -139,6 +140,10 @@ namespace k {
             bool contains(const std::string& key) const;
 
         private:
+            Config() = default; // Private constructor for singleton
+            Config(const Config&) = delete;
+            Config& operator=(const Config&) = delete;
+
             std::unordered_map<std::string, std::string> data;
 
             // Helper methods
@@ -211,12 +216,9 @@ namespace k {
             return default_value;
         }
 
-// Macros to simplify variable retrieval from the config file
-#define K_CONFIG_VAR(type, varname, key_path, default_value) \
-    type varname = config.get<type>(key_path, default_value);
-
-#define K_CONFIG_ARRAY(varname, key_path, default_value) \
-    auto varname = config.get<std::vector<std::string>>(key_path, default_value);
+// Macro to initialize configuration variables with default values
+#define KCONFIG_VAR(varname, key_path, default_value) \
+    varname = k::config::Config::getInstance().get<decltype(varname)>(key_path, default_value);
 
     } // namespace config
 }

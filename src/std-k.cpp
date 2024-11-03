@@ -277,6 +277,13 @@ void k::WriteOnSameLine(std::string Line) {
     std::cout << "\r" << Line << std::flush;
 }
 
+// Implementing the singleton instance
+k::config::Config& k::config::Config::getInstance() {
+    static Config instance;
+    return instance;
+}
+
+// Load configuration from a file
 bool k::config::Config::load(const std::string& filename) {
     std::ifstream infile(filename);
     if (!infile.is_open())
@@ -312,6 +319,7 @@ bool k::config::Config::load(const std::string& filename) {
     return true;
 }
 
+// Parse a line from the configuration file
 bool k::config::Config::parseLine(const std::string& line, std::string& current_section) {
     auto equal_pos = line.find('=');
     if (equal_pos == std::string::npos)
@@ -333,6 +341,7 @@ bool k::config::Config::parseLine(const std::string& line, std::string& current_
     return true;
 }
 
+// Check if a key exists in the configuration
 bool k::config::Config::contains(const std::string& key) const {
     return data.find(key) != data.end();
 }

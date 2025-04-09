@@ -19,20 +19,24 @@ void k::BreakPoint(void) {
 
 int k::ExecCmd(const std::string Cmd, std::string &Output) {
     int ExitStatus = 0;
-	auto pPipe = ::popen(Cmd.c_str(), "r");
-	if(pPipe == nullptr) throw std::runtime_error("Cannot open pipe");	
+    auto pPipe = ::popen(Cmd.c_str(), "r");
+    if (pPipe == nullptr) {
+        throw std::runtime_error("Cannot open pipe");
+    }
 
     std::array<char, 256> buffer;
-	while(not feof(pPipe)) {
-	    auto bytes = fread(buffer.data(), 1, buffer.size(), pPipe);
-	    Output.append(buffer.data(), bytes);
-	}
+    while (true) {
+        auto bytes = fread(buffer.data(), 1, buffer.size(), pPipe);
+        if (bytes == 0) break; // End-of-file reached
+        Output.append(buffer.data(), bytes);
+    }
 
-	auto rc = ::pclose(pPipe);
-    if(WIFEXITED(rc))
-	    ExitStatus = WEXITSTATUS(rc);
+    auto rc = ::pclose(pPipe);
+    if (WIFEXITED(rc)) {
+        ExitStatus = WEXITSTATUS(rc);
+    }
 
-	return ExitStatus;
+    return ExitStatus;
 }
 
 int k::ExecCmd(const std::string Cmd) {

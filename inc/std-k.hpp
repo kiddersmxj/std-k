@@ -25,6 +25,7 @@ namespace k {
     void Touch(std::string File);
     std::string StripTrailingNL(std::string Input);
     void SplitString(std::string &str, char delim, std::vector<std::string> &out, bool NoWhitespace);
+	void SplitString(std::string &str, const std::string &delim, std::vector<std::string> &out, bool NoWhitespace);
     int VGetIndex(std::vector<std::string> v, std::string K);
     long Map(long x, long in_min, long in_max, long out_min, long out_max);
     float Average(std::vector<int> &v);

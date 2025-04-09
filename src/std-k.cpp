@@ -150,6 +150,35 @@ void k::SplitString(std::string &str, char delim, std::vector<std::string> &out,
     } 
 } 
 
+// Splits the input string 'str' into substrings using the multi-character delimiter 'delim'.
+// If 'NoWhitespace' is true, the function removes all whitespace from each substring before adding it to the output vector 'out'.
+// Otherwise, it simply appends the raw token.
+void k::SplitString(std::string &str, const std::string &delim, std::vector<std::string> &out, bool NoWhitespace) {
+    // The starting index from where to search
+    size_t start = 0;
+    // Find the first occurrence of the delimiter
+    size_t end = str.find(delim, start);
+    
+    // Loop until no further delimiter is found in the string
+    while (end != std::string::npos) {
+        std::string token = str.substr(start, end - start);
+        if (NoWhitespace) {
+            token = RemoveWhitespace(token);
+        }
+        out.push_back(token);
+        // Advance the start position beyond the delimiter just found
+        start = end + delim.length();
+        end = str.find(delim, start);
+    }
+    
+    // Capture the substring following the last delimiter (or the entire string if the delimiter was never found)
+    std::string token = str.substr(start);
+    if (NoWhitespace) {
+        token = RemoveWhitespace(token);
+    }
+    out.push_back(token);
+}
+
 int k::VGetIndex(std::vector<std::string> v, std::string K) {
     auto it = find(v.begin(), v.end(), K);
     // If element was found
